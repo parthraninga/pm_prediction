@@ -6,14 +6,20 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
-from sklearn.metrics import mean_squared_error
-import matplotlib.pyplot as plt
 import sys
+
+# Set up a logs folder and logging configuration
+logs_dir = 'logs'
+os.makedirs(logs_dir, exist_ok=True)
+log_file_path = os.path.join(logs_dir, 'training.log')
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    stream=sys.stdout,
+    handlers=[
+        logging.FileHandler(log_file_path),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 
 class PMModelTrainer:
@@ -21,7 +27,6 @@ class PMModelTrainer:
         self.data_path = data_path
         self.model_dir = model_dir
         os.makedirs(self.model_dir, exist_ok=True)
-        logging.basicConfig(filename=os.path.join(self.model_dir, 'training.log'), level=logging.INFO)
 
     def load_data(self):
         df = pd.read_csv(self.data_path)
@@ -47,13 +52,10 @@ class PMModelTrainer:
         plt.savefig(plot_path)
         plt.close()
         logging.info(f'{target} scatter plot saved to {plot_path}')
-    
-    
+
     def train_model(self, target):
         y = self.y_pm25 if target == 'PM2.5' else self.y_pm10
-        X_train, X_test, y_train, y_test = train_test_split(
-            self.X, y, test_size=0.2, random_state=42
-        )
+        X_train, X_test, y_train, y_test = train_test_split(self.X, y, test_size=0.2, random_state=42)
 
         model = RandomForestRegressor(
             n_estimators=200,
@@ -67,7 +69,7 @@ class PMModelTrainer:
         y_pred = model.predict(X_test)
 
         mse = mean_squared_error(y_test, y_pred)
-        rmse = mean_squared_error(y_test, y_pred)**0.5
+        rmse = mse**0.5
         mae = mean_absolute_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
 
