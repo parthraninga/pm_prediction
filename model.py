@@ -103,7 +103,7 @@ class PMModelTrainer:
 
 if __name__ == '__main__':
     trainer = PMModelTrainer(
-        data_path='G:/My Drive/ISRO/Model/model_input_dataset.csv',
+        data_path='data/model_input_dataset.csv',
         model_dir='models/random_forest'
     )
     trainer.execute()

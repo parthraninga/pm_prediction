@@ -25,12 +25,12 @@ if __name__ == '__main__':
         model_pm10_path='models/random_forest/rf_model_pm10.pkl'
     )
 
-    aod = 0.12
-    HFLUX = 150.0
-    PBLH = 1000.0
-    QLML = 0.004
-    SPEED = 2.5
-    TLML = 295.0
+    aod = 0.084709354
+    HFLUX = 154.0964203
+    PBLH = 971.8314819
+    QLML = 0.003878968
+    SPEED = 1.334718823
+    TLML = 1.334718823
 
     pm25, pm10 = predictor.predict(aod, HFLUX, PBLH, QLML, SPEED, TLML)
     print(f"Predicted PM2.5: {pm25}")
