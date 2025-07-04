@@ -22,3 +22,4 @@ with h5py.File(file_path, 'r') as f:
     pm = f['/PM2.5'][:]  # replace with exact path like '/Geophysical Data/AOD'
     lat = f['/latitude'][:]
     lon = f['/longitude'][:]
+    print(f['PM2.5'].shape)

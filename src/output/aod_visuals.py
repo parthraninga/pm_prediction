@@ -1,57 +1,52 @@
-#To get visuals of a specific file
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-from matplotlib import cm
 import cartopy.crs as ccrs
-from datetime import datetime
-import os
 import cartopy.feature as cfeature
+import os
 
-# --- File path ---
-file_path = 'prediction_2025-04-01T05.h5'
+file_path = "prediction_2025-04-01T05.h5"
 
-# --- Load data ---
 with h5py.File(file_path, 'r') as f:
-    aod = f['PM2.5'][0, :, :]
     lat = f['latitude'][:]
     lon = f['longitude'][:]
+    pm25 = f['PM2.5'][:]
 
-lat2d, lon2d = lat, lon
+# --- Infer shape ---
+if len(lat) == len(lon) == len(pm25):
+    # Find unique lats and lons
+    unique_lat = np.unique(lat)
+    unique_lon = np.unique(lon)
 
-# --- Custom colormap ---
-plasma = plt.colormaps['plasma']
-colors = plasma(np.linspace(0, 1, 256))
-colors[0] = [1, 1, 1, 1]
-white_plasma = mcolors.ListedColormap(colors)
+    # Create 2D grid
+    lat2d, lon2d = np.meshgrid(unique_lat, unique_lon, indexing='ij')
 
-# --- Parse filename for title and image name ---
-filename = os.path.basename(file_path)
-parts = filename.split('_')
-date_str = parts[1]
-time_str = parts[2]
-dt = datetime.strptime(date_str + time_str, '%d%b%Y%H%M')
-plot_title = f'INSAT-3DR AOD on {dt.strftime("%d %B %Y, %H:%M UTC")}'
-image_filename = f"AOD_{dt.strftime('%Y%m%d_%H%M')}.png"
+    # Create 2D PM2.5 matrix
+    pm25_2d = np.full(lat2d.shape, np.nan)
 
-# --- Output directory ---
-output_dir = 'AOD_Plots'
-os.makedirs(output_dir, exist_ok=True)
-save_path = os.path.join(output_dir, image_filename)
+    # Fill PM2.5 matrix
+    for i in range(len(pm25)):
+        lat_idx = np.where(unique_lat == lat[i])[0][0]
+        lon_idx = np.where(unique_lon == lon[i])[0][0]
+        pm25_2d[lat_idx, lon_idx] = pm25[i]
+else:
+    raise ValueError("Latitude, longitude, and PM2.5 shapes do not match.")
 
 # --- Plot ---
 plt.figure(figsize=(12, 8))
 ax = plt.axes(projection=ccrs.PlateCarree())
-plot = ax.pcolormesh(lon2d, lat2d, aod, cmap=white_plasma, vmin=0, vmax=1.5, shading='auto')
-ax.add_feature(cfeature.BORDERS, linewidth=1)
+plot = ax.pcolormesh(lon2d, lat2d, pm25_2d, cmap='viridis', shading='auto')
+
+ax.add_feature(cfeature.BORDERS)
 ax.add_feature(cfeature.COASTLINE)
 ax.add_feature(cfeature.STATES, linewidth=0.5, edgecolor='gray')
 ax.set_extent([65, 100, 5, 40], crs=ccrs.PlateCarree())
-cbar = plt.colorbar(plot, orientation='vertical', pad=0.05, aspect=30)
-cbar.set_label('AOD @ 650 nm')
-plt.title(plot_title)
 
-# --- Save and show ---
-plt.savefig(save_path, dpi=300, bbox_inches='tight')
+cbar = plt.colorbar(plot, orientation='vertical', pad=0.05, aspect=30)
+cbar.set_label('Predicted PM2.5')
+
+title = os.path.basename(file_path).replace('.h5', '')
+plt.title(f'{title} | PM2.5 Concentration')
+plt.tight_layout()
+plt.savefig(f'{title}_pm25_map.png')
 plt.show()
