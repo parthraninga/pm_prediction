@@ -3,3 +3,6 @@ uvicorn
 joblib
 scikit-learn
 pandas
+xarray
+h5py
+netcdf4
