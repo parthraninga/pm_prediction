@@ -25,7 +25,7 @@ if __name__ == '__main__':
         model_pm10_path='models/random_forest/rf_model_pm10.pkl'
     )
 
-    aod = 0.084709354
+    aod = None
     HFLUX = 154.0964203
     PBLH = 971.8314819
     QLML = 0.003878968
