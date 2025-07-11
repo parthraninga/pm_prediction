@@ -6,3 +6,9 @@ pandas
 xarray
 h5py
 netcdf4
+fastapi
+uvicorn
+joblib
+pandas
+scikit-learn
+xgboost

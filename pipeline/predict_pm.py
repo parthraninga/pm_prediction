@@ -28,7 +28,7 @@ class PM10ModelPredictor:
 if __name__ == '__main__':
     predictor = PM10ModelPredictor(
         model_pm25_path='models/random_forest_9/rf_model_pm2.5.pkl',
-        model_pm10_path='models/pm10_from_pm25_xgb/xgb_model_pm10.pkl'
+        model_pm10_path='models/pm10_from_all_rf_2/rf_model_pm10.pkl'
     )
 
     aod = 0.094660684
